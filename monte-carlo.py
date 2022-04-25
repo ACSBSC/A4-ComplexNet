@@ -1,0 +1,3 @@
+
+def montecarlo():
+    print()
