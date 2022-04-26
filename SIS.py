@@ -8,46 +8,65 @@ warnings.filterwarnings("ignore")
 
 
 def init_state(G):
-    """Initialise all node in the graph to be susceptible."""
-    for i in G.node.keys():
-        G.node[i]['state'] = 'S'
+    for i in G.nodes.keys():
+        G.nodes[i]['state'] = 'S'
     return G
 
 def start_infection(G, pSick):
-    """Inject a random proportion of nodes in the graph."""
-    for i in G.node.keys():
+    infected=0
+    for i in G.nodes.keys():
         if(rnd.random() <= pSick):
-            G.node[i]['state'] = 'I'
-    return G
+            G.nodes[i]['state'] = 'I'
+            infected+=1
+    return G, infected
 
-def SIS(G):
-    S = 'S'                 #Healthy
-    I = 'I'                 #Infected
-    recovery = 0.5          #probability of getting cured
-    infection = 0.5         #probability of getting infected
-    list_fraq_infected = [] #average fraction of infected node per cycle
-    time_step = 1000
+def SIS(G, N, recovery, infection):
+    infected_per = 0.2                                     #Initial percentage of infected population
+    G = init_state(G)                                       #Initialise all node in the graph to be susceptible
+    G, init_infected_num = start_infection(G,infected_per)  #Inject a random proportion of infected nodes in the graph
     
-    for i in range(time_step):
-        for i in G.nodes.keys():
-            if G.node[i]['state'] == I:
+    S = 'S'                                #Healthy
+    I = 'I'                                #Infected
+    
+    list_infected = [init_infected_num]    #total num of infected nodes per step
+    list_healthy = [N-init_infected_num]   #total num of healthy nodes per step
+    time_step = 10
+    
+    for i in range(time_step):                      #Cycle of spreading infection
+        infected_count = 0
+        for i in G.nodes.keys():                    #Go through every node / population
+            if G.nodes[i]['state'] == I:            #If node is infected, see if it recovers
                 rn = rnd.random()
                 if rn <recovery:
-                    G.node[i]['state']=S
-            elif G.node[i]['state'] == S:
-                for n in G.neighbors(i):
-                    if G.node[n]['state'] == 'I':
+                    G.nodes[i]['state']=S
+            elif G.nodes[i]['state'] == S:          #If node is healthy, see if it gets infected
+                for n in G.neighbors(i):            #survey its neighbours to see if any of them is infected
+                    if G.nodes[n]['state'] == 'I':  #if a neighbouring node is infected, calculate if the healthy node gets infected
                         rn = rnd.random()
                         if rn < infection:
-                            G.node[i]['state']=I
+                            G.nodes[i]['state']=I
+        
+        for i in G.nodes.keys():                    #count the number of final infected nodes
+            if G.nodes[i]['state'] == I:
+                infected_count+=1
+        
+        list_infected.append(infected_count)
+        list_healthy.append(N-infected_count)
                          
-    return G
+    return list_healthy, list_infected
     
-    #avrg_fraq_infected = sum(list_fraq_infected)/len(list_fraq_infected) #average of averages fraction of infected node
     
-n=10
+    
+n=100
 p = 0.1
-infected_per = 0.05                   #initial percentage of infected population
+
 G = nx.erdos_renyi_graph(n, p)
-G = init_state(G) 
-G = start_infection(G,infected_per)   
+
+recovery_rate = 0.2                         #probability of getting cured
+infected_rate = 0.8                         #probability of getting infected 
+healthy, infected = SIS(G,n, recovery_rate, infected_rate)
+
+print('healthy')
+print(healthy)
+print('infected')
+print(infected)
