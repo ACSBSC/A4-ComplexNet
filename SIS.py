@@ -36,9 +36,10 @@ def SIS(G):
                     G.node[i]['state']=S
             elif G.node[i]['state'] == S:
                 for n in G.neighbors(i):
-                    rn = rnd.random()
-                    if rn < infection:
-                        G.node[i]['state']=I
+                    if G.node[n]['state'] == 'I':
+                        rn = rnd.random()
+                        if rn < infection:
+                            G.node[i]['state']=I
                          
     return G
     
