@@ -61,7 +61,7 @@ def SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_st
     average_rho = []                                #list of rhos over repetition
     
     for r in range(repetition):
-        print("Pepetition nr: "+str(r)+" loading...")
+        print("Repetition nr: "+str(r+1)+" loading...")
         healthy, infected = SIS_method(G,n, recovery_rate, infected_rate, init_infected_per, time_step,transitory_step)    
         
         rho=(sum(infected)/len(infected))/n         #average number of infected over k cycles
@@ -80,7 +80,7 @@ G = nx.erdos_renyi_graph(n[0], p)               #Graph with 500 nodes
 G2 = nx.erdos_renyi_graph(n[1], p)              #Graph with 1000 nodes
 
 #SIS model settings
-repetition = 100                                #num of repetitions of the model
+repetition = 50                                 #num of repetitions of the model
 recovery_rate = [0.2,0.4,0.6,0.8,1.0]           #different probabilities of getting cured
 infected_rate = np.arange(0.0, 1.0, 0.02)       #different probabilities of getting infected 
 init_infected_per = 0.2                         #Initial percentage of infected population
@@ -89,19 +89,18 @@ transitory_step = 900                           #transitory steps
 
 averages_rhos_beta=[]
 
-#get the average of average of rhos
-for beta in infected_rate:  
-    print("------------------------------ BETA: "+str(beta)+" ------------------------------")
-    p = SIS(G,n[0],repetition, recovery_rate[3], beta, init_infected_per, time_step, transitory_step)
-    
-averages_rhos_beta.append(p)
+#go trhough different values of recovery rate
+for mu in recovery_rate:
+    for beta in infected_rate:  
+        print("------------------------------ BETA: "+str(beta)+" ------------------------------")
+        p = SIS(G,n[0],repetition, mu, beta, init_infected_per, time_step, transitory_step)
+        
+        averages_rhos_beta.append(p)            #save the average of average of rhos
 
-
-print(averages_rhos_beta)
-
-plt.plot(infected_rate, averages_rhos_beta)
-plt.xlabel('Infection rate')
-plt.ylabel('rho')
-plt.title('Population: '+str(n[0])+' Recovery rate: '+str(recovery_rate[3]))
-plt.legend()
-plt.show()
+    plt.plot(infected_rate, averages_rhos_beta) #plot rho values and beta values
+    plt.xlabel('Infection rate (beta)')
+    plt.ylabel('rho')
+    plt.title('Population: '+str(n[0])+' Recovery rate: '+str(mu))
+    plt.savefig('./plots/Population_'+str(n[0])+'_Recovery rate_'+str(mu))
+    plt.show()
+    plt.close()
