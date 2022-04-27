@@ -104,3 +104,6 @@ for mu in recovery_rate:
     plt.savefig('./plots/Population_'+str(n[0])+'_Recovery rate_'+str(mu))
     plt.show()
     plt.close()
+    
+    
+#still need to save the graphs as pajek format
