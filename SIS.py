@@ -19,7 +19,7 @@ def start_infection(G, pSick):
             infected+=1
     return G, infected
 
-def SIS_method(G, N, recovery, infection, infected_per=0.2, time_step=30):
+def SIS_method(G, N, recovery, infection, infected_per, time_step, transitory_step):
     
     G = init_state(G)                                       #Initialise all node in the graph to be susceptible
     G, init_infected_num = start_infection(G,infected_per)  #Inject a random proportion of infected nodes in the graph
@@ -45,39 +45,40 @@ def SIS_method(G, N, recovery, infection, infected_per=0.2, time_step=30):
                         if rn < infection:
                             G.nodes[i]['state']=I
         
-        for i in G.nodes.keys():                    #count the number of final infected nodes
-            if G.nodes[i]['state'] == I:
-                infected_count+=1
-        
-        list_infected.append(infected_count)
-        list_healthy.append(N-infected_count)
+        if i == transitory_step:                        #stationarty steps that will be the onse to use for rho <p>
+            for i in G.nodes.keys():                    #count the number of final infected nodes
+                if G.nodes[i]['state'] == I:
+                    infected_count+=1
+            
+            list_infected.append(infected_count)
+            list_healthy.append(N-infected_count)
                          
     return list_healthy, list_infected
     
  
-def SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_step):
+def SIS(G,n,repetition=100, recovery=1, infection=0.2, infected_per=0.2, time_step=1000, transitory_step=900):
     
     average_rho = []            #list of rhos over repetition
     
     for r in range(repetition):
-        healthy, infected = SIS_method(G,n, recovery_rate, infected_rate, init_infected_per, time_step)
+        healthy, infected = SIS_method(G,n, recovery_rate, infected_rate, init_infected_per, time_step,transitory_step)
 
         '''print('healthy')
         print(healthy)
         print('infected')
         print(infected)'''
         
-        rho=sum(infected)/n         #average number of infected over k cycles
+        rho=(sum(infected)/len(infected))/n         #average number of infected over k cycles
 
         average_rho.append(rho)
         
-        plt.plot(range(time_step+1), healthy, label="Suscebtible")
-        plt.plot(range(time_step+1), infected, label="Infected")
-        plt.xlabel('Time')
-        plt.ylabel('Population')
-        plt.title('Population: '+str(n)+' Recovery rate: '+str(recovery_rate)+' Infection rate: '+str(infected_rate))
-        plt.legend()
-        plt.show()
+    '''plt.plot(range(time_step+1), healthy, label="Suscebtible")
+    plt.plot(range(time_step+1), infected, label="Infected")
+    plt.xlabel('Time')
+    plt.ylabel('Population')
+    plt.title('Population: '+str(n)+' Recovery rate: '+str(recovery_rate)+' Infection rate: '+str(infected_rate))
+    plt.legend()
+    plt.show()'''
     
     p=sum(average_rho)/len(average_rho) #average of average of average of rhos per repetition
     
@@ -85,18 +86,23 @@ def SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_st
 
    
 #graph settings   
-n=1000
+n = 500
 p = 0.1
 G = nx.erdos_renyi_graph(n, p)
 
 #SIS model settings
-repetition = 5                             #num of repetitions of the model
+repetition = 100                            #num of repetitions of the model
 recovery_rate = 0.6                         #probability of getting cured
 infected_rate = 0.8                         #probability of getting infected 
-init_infected_per = 0.01                    #Initial percentage of infected population
+init_infected_per = 0.2                     #Initial percentage of infected population
 time_step = 1000                            #number of cycles 
+transitory_step = 900                       #transitory steps
+
+averages_rhos_beta=[]
 
 #get the average of average of rhos
-p = SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_step)
+p = SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_step, transitory_step)
+averages_rhos_beta.append(p)
+
 
 print(p)
