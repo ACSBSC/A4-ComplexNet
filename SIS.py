@@ -1,6 +1,5 @@
 import numpy.random as rnd
-import numpy as np
-import math
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import warnings
@@ -20,8 +19,8 @@ def start_infection(G, pSick):
             infected+=1
     return G, infected
 
-def SIS(G, N, recovery, infection):
-    infected_per = 0.2                                     #Initial percentage of infected population
+def SIS_method(G, N, recovery, infection, infected_per=0.2, time_step=30):
+    
     G = init_state(G)                                       #Initialise all node in the graph to be susceptible
     G, init_infected_num = start_infection(G,infected_per)  #Inject a random proportion of infected nodes in the graph
     
@@ -30,7 +29,7 @@ def SIS(G, N, recovery, infection):
     
     list_infected = [init_infected_num]    #total num of infected nodes per step
     list_healthy = [N-init_infected_num]   #total num of healthy nodes per step
-    time_step = 10
+    
     
     for i in range(time_step):                      #Cycle of spreading infection
         infected_count = 0
@@ -55,18 +54,49 @@ def SIS(G, N, recovery, infection):
                          
     return list_healthy, list_infected
     
+ 
+def SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_step):
     
+    average_rho = []            #list of rhos over repetition
     
-n=100
-p = 0.1
+    for r in range(repetition):
+        healthy, infected = SIS_method(G,n, recovery_rate, infected_rate, init_infected_per, time_step)
 
+        '''print('healthy')
+        print(healthy)
+        print('infected')
+        print(infected)'''
+        
+        rho=sum(infected)/n         #average number of infected over k cycles
+
+        average_rho.append(rho)
+        
+        plt.plot(range(time_step+1), healthy, label="Suscebtible")
+        plt.plot(range(time_step+1), infected, label="Infected")
+        plt.xlabel('Time')
+        plt.ylabel('Population')
+        plt.title('Population: '+str(n)+' Recovery rate: '+str(recovery_rate)+' Infection rate: '+str(infected_rate))
+        plt.legend()
+        plt.show()
+    
+    p=sum(average_rho)/len(average_rho) #average of average of average of rhos per repetition
+    
+    return p
+
+   
+#graph settings   
+n=1000
+p = 0.1
 G = nx.erdos_renyi_graph(n, p)
 
-recovery_rate = 0.2                         #probability of getting cured
+#SIS model settings
+repetition = 5                             #num of repetitions of the model
+recovery_rate = 0.6                         #probability of getting cured
 infected_rate = 0.8                         #probability of getting infected 
-healthy, infected = SIS(G,n, recovery_rate, infected_rate)
+init_infected_per = 0.01                    #Initial percentage of infected population
+time_step = 1000                            #number of cycles 
 
-print('healthy')
-print(healthy)
-print('infected')
-print(infected)
+#get the average of average of rhos
+p = SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_step)
+
+print(p)
