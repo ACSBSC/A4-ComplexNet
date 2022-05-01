@@ -45,13 +45,13 @@ def SIS_method(G, N, recovery, infection, infected_per, time_step, transitory_st
                         if rn < infection:
                             G.nodes[i]['state']=I
         
-        if i == transitory_step:                        #stationarty steps that will be the onse to use for rho <p>
+        if i == transitory_step:                        #stationarty steps that will be the ones to use for rho <p>
             for i in G.nodes.keys():                    #count the number of final infected nodes
                 if G.nodes[i]['state'] == I:
                     infected_count+=1
             
-            list_infected.append(infected_count)
-            list_healthy.append(N-infected_count)
+            list_infected.append(infected_count)        #number of infected nodes per cycle
+            list_healthy.append(N-infected_count)       #number of healthy nodes per cycle
                          
     return list_healthy, list_infected
     
@@ -74,15 +74,17 @@ def SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_st
 
    
 #graph settings   
-n = [500,1000]
+n = [500,1000,500]
 p = 0.1
 G = nx.erdos_renyi_graph(n[0], p)               #Graph with 500 nodes
 G2 = nx.erdos_renyi_graph(n[1], p)              #Graph with 1000 nodes
+#G3 = nx.erdos_renyi_graph(n[2], p)               #Graph with 500 nodes
 
-nx.write_pajek(G, "graph_1_500_ER.net")
-nx.write_pajek(G2, "graph_2_1000_ER.net")
+nx.write_pajek(G, "graph_1_500_ER.net")         #Save fist graph as .net pajek file
+nx.write_pajek(G2, "graph_2_1000_ER.net")       #Save second graph as .net pajek file
+#nx.write_pajek(G3, "graph_3_500_ER.net")       #Save second graph as .net pajek file
 
-list_graphs=[G,G2]
+list_graphs=[G,G2,G3]
 
 #SIS model settings
 repetition = 50                                 #num of repetitions of the model
@@ -108,9 +110,8 @@ for i in range(len(list_graphs)):
         plt.xlabel('Infection rate (beta)')
         plt.ylabel('rho')
         plt.title('Population: '+str(n[i])+' Recovery rate: '+str(mu))
-        plt.savefig('./plots/Graph_'+str(i+1)+'Population_'+str(n[0])+'_Recovery rate_'+str(mu)+'.jpg')
+        plt.savefig('./plots/Graph_'+str(i+1)+'Population_'+str(n[i])+'_Recovery rate_'+str(mu)+'.jpg')
 
         plt.close()
     
     
-#still need to save the graphs as pajek format
