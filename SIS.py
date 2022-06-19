@@ -45,7 +45,7 @@ def SIS_method(G, N, recovery, infection, infected_per, time_step, transitory_st
                         if rn < infection:
                             G.nodes[i]['state']=I
         
-        if i == transitory_step:                        #stationarty steps that will be the ones to use for rho <p>
+        if i >= transitory_step:                        #stationarty steps that will be the ones to use for rho <p>
             for i in G.nodes.keys():                    #count the number of final infected nodes
                 if G.nodes[i]['state'] == I:
                     infected_count+=1
@@ -78,11 +78,11 @@ n = [500,1000,500]
 p = 0.1
 G = nx.erdos_renyi_graph(n[0], p)               #Graph with 500 nodes
 G2 = nx.erdos_renyi_graph(n[1], p)              #Graph with 1000 nodes
-#G3 = nx.erdos_renyi_graph(n[2], p)               #Graph with 500 nodes
+G3 = nx.erdos_renyi_graph(n[2], p)               #Graph with 500 nodes
 
 nx.write_pajek(G, "graph_1_500_ER.net")         #Save fist graph as .net pajek file
 nx.write_pajek(G2, "graph_2_1000_ER.net")       #Save second graph as .net pajek file
-#nx.write_pajek(G3, "graph_3_500_ER.net")       #Save second graph as .net pajek file
+nx.write_pajek(G3, "graph_3_500_ER.net")       #Save second graph as .net pajek file
 
 list_graphs=[G,G2,G3]
 
