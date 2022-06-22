@@ -9,6 +9,7 @@ warnings.filterwarnings("ignore")
 def init_state(G):
     for i in G.nodes.keys():
         G.nodes[i]['state'] = 'S'
+        G.nodes[i]['time'] = 0
     return G
 
 def start_infection(G, pSick):
@@ -38,12 +39,15 @@ def SIS_method(G, N, recovery, infection, infected_per, time_step, transitory_st
                 rn = rnd.random()
                 if rn < recovery:
                     G.nodes[i]['state']=S
+                    G.nodes[i]['time']+=1
             elif G.nodes[i]['state'] == S:          #If node is healthy, see if it gets infected
                 for n in G.neighbors(i):            #survey its neighbours to see if any of them is infected
                     if G.nodes[n]['state'] == 'I':  #if a neighbouring node is infected, calculate if the healthy node gets infected
-                        rn = rnd.random()
-                        if rn < infection:
-                            G.nodes[i]['state']=I
+                        if G.nodes[i]['time'] == G.nodes[n]['time']:
+                            rn = rnd.random()
+                            if rn < infection:
+                                G.nodes[i]['state']=I
+                                G.nodes[i]['time']+=1
         
         if i >= transitory_step:                        #stationarty steps that will be the ones to use for rho <p>
             for i in G.nodes.keys():                    #count the number of final infected nodes
@@ -74,20 +78,20 @@ def SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_st
 
    
 #graph settings   
-n = [500,1000,500]
+n = [500,550,600]
 p = 0.1
 G = nx.erdos_renyi_graph(n[0], p)               #Graph with 500 nodes
 G2 = nx.erdos_renyi_graph(n[1], p)              #Graph with 1000 nodes
 G3 = nx.erdos_renyi_graph(n[2], p)               #Graph with 500 nodes
 
-nx.write_pajek(G, "graph_1_500_ER.net")         #Save fist graph as .net pajek file
-nx.write_pajek(G2, "graph_2_1000_ER.net")       #Save second graph as .net pajek file
-nx.write_pajek(G3, "graph_3_500_ER.net")       #Save second graph as .net pajek file
+nx.write_pajek(G, "./NewNet/graph_1_500_ER.net")         #Save fist graph as .net pajek file
+nx.write_pajek(G2, "./NewNet/graph_2_550_ER.net")        #Save second graph as .net pajek file
+nx.write_pajek(G3, "./NewNet/graph_3_600_ER.net")        #Save second graph as .net pajek file
 
 list_graphs=[G,G2,G3]
 
 #SIS model settings
-repetition = 50                                 #num of repetitions of the model
+repetition = 10                                 #num of repetitions of the model
 recovery_rate = [0.2,0.4,0.6,0.8,1.0]           #different probabilities of getting cured
 infected_rate = np.arange(0.0, 1.02, 0.02)      #different probabilities of getting infected 
 init_infected_per = 0.2                         #Initial percentage of infected population
@@ -110,7 +114,7 @@ for i in range(len(list_graphs)):
         plt.xlabel('Infection rate (beta)')
         plt.ylabel('rho')
         plt.title('Population: '+str(n[i])+' Recovery rate: '+str(mu))
-        plt.savefig('./plots/Graph_'+str(i+1)+'Population_'+str(n[i])+'_Recovery rate_'+str(mu)+'.jpg')
+        plt.savefig('./NewPlots/Graph_'+str(i+1)+'Population_'+str(n[i])+'_Recovery rate_'+str(mu)+'.jpg')
 
         plt.close()
     
