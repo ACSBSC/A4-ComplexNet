@@ -32,7 +32,7 @@ def SIS_method(G, N, recovery, infection, infected_per, time_step, transitory_st
     list_healthy = [N-init_infected_num]   #total num of healthy nodes per step
     
     
-    for i in range(time_step):                      #Cycle of spreading infection
+    for t in range(time_step):                      #Cycle of spreading infection
         infected_count = 0
         for i in G.nodes.keys():                    #Go through every node / population
             if G.nodes[i]['state'] == I:            #If node is infected, see if it recovers
@@ -48,8 +48,9 @@ def SIS_method(G, N, recovery, infection, infected_per, time_step, transitory_st
                             if rn < infection:
                                 G.nodes[i]['state']=I
                                 G.nodes[i]['time']+=1
+                                break
         
-        if i >= transitory_step:                        #stationarty steps that will be the ones to use for rho <p>
+        if t >= transitory_step:                        #stationarty steps that will be the ones to use for rho <p>
             for i in G.nodes.keys():                    #count the number of final infected nodes
                 if G.nodes[i]['state'] == I:
                     infected_count+=1
@@ -81,14 +82,14 @@ def SIS(G,n,repetition, recovery_rate, infected_rate, init_infected_per, time_st
 n = [500,550,600]
 p = 0.1
 G = nx.erdos_renyi_graph(n[0], p)               #Graph with 500 nodes
-G2 = nx.erdos_renyi_graph(n[1], p)              #Graph with 1000 nodes
-G3 = nx.erdos_renyi_graph(n[2], p)               #Graph with 500 nodes
+'''G2 = nx.erdos_renyi_graph(n[1], p)              #Graph with 1000 nodes
+G3 = nx.erdos_renyi_graph(n[2], p)               #Graph with 500 nodes'''
 
 nx.write_pajek(G, "./NewNet/graph_1_500_ER.net")         #Save fist graph as .net pajek file
-nx.write_pajek(G2, "./NewNet/graph_2_550_ER.net")        #Save second graph as .net pajek file
-nx.write_pajek(G3, "./NewNet/graph_3_600_ER.net")        #Save second graph as .net pajek file
+'''nx.write_pajek(G2, "./NewNet/graph_2_550_ER.net")        #Save second graph as .net pajek file
+nx.write_pajek(G3, "./NewNet/graph_3_600_ER.net") '''       #Save second graph as .net pajek file
 
-list_graphs=[G,G2,G3]
+list_graphs=[G]#,G2,G3]
 
 #SIS model settings
 repetition = 10                                 #num of repetitions of the model
