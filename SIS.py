@@ -92,12 +92,12 @@ nx.write_pajek(G3, "./NewNet/graph_3_600_ER.net") '''       #Save second graph a
 list_graphs=[G]#,G2,G3]
 
 #SIS model settings
-repetition = 10                                 #num of repetitions of the model
+repetition = 50                                 #num of repetitions of the model
 recovery_rate = [0.2,0.4,0.6,0.8,1.0]           #different probabilities of getting cured
 infected_rate = np.arange(0.0, 1.02, 0.02)      #different probabilities of getting infected 
 init_infected_per = 0.2                         #Initial percentage of infected population
-time_step = 1000                                #number of cycles 
-transitory_step = 900                           #transitory steps
+time_step = 100                                #number of cycles 
+transitory_step = 90                           #transitory steps
 
 
 
